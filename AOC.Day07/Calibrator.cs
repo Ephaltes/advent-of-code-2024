@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,6 +32,67 @@ public class Calibrator
                                                 });
 
         return validEquations.ToList();
+    }
+
+    /// <summary>
+    /// Optimized Solution by https://github.com/sundman/AdventOfCode-24/blob/main/ConsoleApp/Day7.cs
+    /// 200ms vs 15s
+    /// </summary>
+    /// <param name="allowConcat"></param>
+    /// <returns></returns>
+    public List<CalibrationEquation> GetValidEquationsOptimizedWithFixedOperators(bool allowConcat)
+    {
+        List<CalibrationEquation> validEquations = [];
+
+        foreach (CalibrationEquation equation in _calibrationEquations)
+        {
+            List<long> reversedValues = equation.Values.ToList();
+            reversedValues.Reverse();
+
+            if (IsValidEquationOptimized(equation.Result, reversedValues, 0, allowConcat))
+                validEquations.Add(equation);
+        }
+
+        return validEquations;
+    }
+
+    /// <summary>
+    /// This only works because operators will always be evaluated left ro right, not according to precedence rules
+    /// and numbers can not be rearranged
+    /// </summary>
+    /// <param name="currentResult"></param>
+    /// <param name="reversedValues"></param>
+    /// <param name="index"></param>
+    /// <param name="allowConcat"></param>
+    /// <returns></returns>
+    private static bool IsValidEquationOptimized(
+        long currentResult,
+        List<long> reversedValues,
+        int index,
+        bool allowConcat)
+    {
+        if (index == reversedValues.Count - 1)
+            return currentResult == reversedValues[index];
+
+        long currentValue = reversedValues[index];
+
+        if (currentResult > currentValue &&
+            IsValidEquationOptimized(currentResult - currentValue, reversedValues, index + 1, allowConcat))
+            return true;
+
+        if (currentResult % currentValue == 0 &&
+            IsValidEquationOptimized(currentResult / currentValue, reversedValues, index + 1, allowConcat))
+            return true;
+
+        if (!allowConcat)
+            return false;
+
+        //Check if the remainder is the value we want to concat
+        //e.g. currentResult = 12345 and currentValue is 45 --> divideBy = 100 --> remainder of modulo will be 45
+        long divideBy = (long)Math.Pow(10, Math.Floor(Math.Log10(currentValue)) + 1);
+
+        return currentResult % divideBy == currentValue &&
+               IsValidEquationOptimized(currentResult / divideBy, reversedValues, index + 1, allowConcat);
     }
 
     private static bool IsValidCombination(CalibrationEquation equation, Operator[] combination)
