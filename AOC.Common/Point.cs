@@ -42,7 +42,7 @@ public struct Point : IEquatable<Point>
 
     public bool Equals(Point other)
     {
-        return X == other.X && Y == other.Y;
+        return Y == other.Y && X == other.X;
     }
 
     public override bool Equals(object? obj)

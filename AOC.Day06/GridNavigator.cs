@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using AOC.Common;
 
@@ -12,55 +13,72 @@ public class GridNavigator
 
     private readonly char[][] _grid;
 
-    private readonly Point[] _directions =
-    [
-        new(-1, 0), // North
-        new(0, 1), // East
-        new(1, 0), // South
-        new(0, -1) // West
-    ];
-
-    private readonly HashSet<Point> _visitedPositions;
-
     private readonly int _gridBoundary;
-
-    private Point _currentPositionOnGrid;
-    private int _currentDirectionIndex;
 
     public GridNavigator(char[][] grid)
     {
         _grid = grid;
         _gridBoundary = _grid.GetUpperBound(0);
-
-        _currentPositionOnGrid = FindInitialPosition();
-
-        _visitedPositions =
-        [
-            _currentPositionOnGrid
-        ];
     }
 
-    public int CountVisitedPositions()
+    public HashSet<Point> GetVisitedPositions()
     {
+        (HashSet<NavigationState> navigationStates, MovementState _) = TravelGrid(FindInitialPosition());
+
+        return navigationStates.Select(navigationState => navigationState.Position)
+                               .ToHashSet();
+    }
+
+    public List<Point> FindTrapPoints(HashSet<Point> guardPath)
+    {
+        Point initialPosition = FindInitialPosition();
+
+        List<Point> trapPoints = [];
+        foreach (Point point in guardPath)
+        {
+            (HashSet<NavigationState> _, MovementState movementState) = TravelGrid(initialPosition, point);
+
+            if (movementState is not MovementState.OutOfBounds)
+                trapPoints.Add(point);
+        }
+
+        return trapPoints;
+    }
+
+    private (HashSet<NavigationState>, MovementState) TravelGrid(Point initialPoint, Point? additionalObstacle = null)
+    {
+        NavigationState currentNavigationState = new(initialPoint, NavigationState.DirectionNorth);
+        HashSet<NavigationState> navigationStates = [new(currentNavigationState)];
+        MovementState movementState;
         while (true)
         {
-            MovementState movementState = EvaluateMovementState();
+            movementState = EvaluateMovementState(currentNavigationState, additionalObstacle);
 
             if (movementState == MovementState.OutOfBounds)
                 break;
 
             if (movementState == MovementState.Obstacle)
-                ChangeDirectionClockwise();
+            {
+                currentNavigationState.ChangeDirectionClockwise();
+            }
             else
-                AdvancePosition();
+            {
+                currentNavigationState.Advance();
+
+                if (!navigationStates.Add(new(currentNavigationState)))
+                    break;
+            }
         }
 
-        return _visitedPositions.Count;
+        return (navigationStates, movementState);
     }
 
-    private MovementState EvaluateMovementState()
+    private MovementState EvaluateMovementState(NavigationState navigationState, Point? additionalObstacle = null)
     {
-        Point nextPosition = _currentPositionOnGrid + _directions[_currentDirectionIndex];
+        Point nextPosition = navigationState.GetNextPosition();
+
+        if (nextPosition == additionalObstacle)
+            return MovementState.Obstacle;
 
         if (IsOutOfBounds(nextPosition))
             return MovementState.OutOfBounds;
@@ -68,18 +86,6 @@ public class GridNavigator
         char cellContent = _grid[nextPosition.Y][nextPosition.X];
 
         return cellContent == ObstacleSymbol ? MovementState.Obstacle : MovementState.Movable;
-    }
-
-    private void AdvancePosition()
-    {
-        _currentPositionOnGrid += _directions[_currentDirectionIndex];
-
-        _visitedPositions.Add(_currentPositionOnGrid);
-    }
-
-    private void ChangeDirectionClockwise()
-    {
-        _currentDirectionIndex = (_currentDirectionIndex + 1) % _directions.Length;
     }
 
     private Point FindInitialPosition()

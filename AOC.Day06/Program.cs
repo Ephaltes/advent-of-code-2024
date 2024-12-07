@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using AOC.Common;
 
@@ -13,13 +14,23 @@ internal class Program
         char[][] grid = utility.GetGrid("input");
         GridNavigator gridNavigator = new(grid);
 
-        SolvePartOne(gridNavigator);
+        HashSet<Point> guardPath = SolvePartOne(gridNavigator);
+        SolvePartTwo(gridNavigator, guardPath);
     }
 
-    private static void SolvePartOne(GridNavigator gridNavigator)
+    private static HashSet<Point> SolvePartOne(GridNavigator gridNavigator)
     {
-        int visitedNodeCount = gridNavigator.CountVisitedPositions();
+        HashSet<Point> visitedPositions = gridNavigator.GetVisitedPositions();
 
-        Console.WriteLine($"PartOne answer {visitedNodeCount}");
+        Console.WriteLine($"PartOne answer {visitedPositions.Count}");
+
+        return visitedPositions;
+    }
+
+    private static void SolvePartTwo(GridNavigator gridNavigator, HashSet<Point> guardPath)
+    {
+        List<Point> positionsToTrapGuard = gridNavigator.FindTrapPoints(guardPath);
+
+        Console.WriteLine($"PartTwo answer {positionsToTrapGuard.Count}");
     }
 }
