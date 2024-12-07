@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using AOC.Common;
+
 namespace AOC.Four;
 
 public class Board
 {
-    private readonly Dictionary<Direction, Position> _directionMapping;
+    private readonly Dictionary<Direction, Point> _directionMapping;
     private readonly char[][] _grid;
     private int _horizontalBoundary;
     private int _verticalBoundary;
@@ -15,16 +17,16 @@ public class Board
     {
         _grid = grid;
 
-        _directionMapping = new Dictionary<Direction, Position>
+        _directionMapping = new Dictionary<Direction, Point>
                             {
-                                { Direction.North, new Position(-1, 0) },
-                                { Direction.NorthEast, new Position(-1, 1) },
-                                { Direction.East, new Position(0, 1) },
-                                { Direction.SouthEast, new Position(1, 1) },
-                                { Direction.South, new Position(1, 0) },
-                                { Direction.SouthWest, new Position(1, -1) },
-                                { Direction.West, new Position(0, -1) },
-                                { Direction.NortWest, new Position(-1, -1) }
+                                { Direction.North, new Point(-1, 0) },
+                                { Direction.NorthEast, new Point(-1, 1) },
+                                { Direction.East, new Point(0, 1) },
+                                { Direction.SouthEast, new Point(1, 1) },
+                                { Direction.South, new Point(1, 0) },
+                                { Direction.SouthWest, new Point(1, -1) },
+                                { Direction.West, new Point(0, -1) },
+                                { Direction.NortWest, new Point(-1, -1) }
                             };
     }
 
@@ -34,7 +36,7 @@ public class Board
 
         List<Direction> directionsToSearch = Enum.GetValues<Direction>().ToList();
 
-        List<Position> crossCharacterPositions = GetWordPositions(wordToFind, crossCharacter, directionsToSearch);
+        List<Point> crossCharacterPositions = GetWordPositions(wordToFind, crossCharacter, directionsToSearch);
 
         return crossCharacterPositions.Count;
     }
@@ -49,18 +51,18 @@ public class Board
             Direction.SouthEast
         ];
 
-        List<Position> crossCharacterPositions = GetWordPositions(wordToFind, crossCharacter, directionsToSearch);
+        List<Point> crossCharacterPositions = GetWordPositions(wordToFind, crossCharacter, directionsToSearch);
 
         return crossCharacterPositions
                .CountBy(position => (position.X, position.Y))
                .Count(group => group.Value / 2 > 0);
     }
 
-    private List<Position> GetWordPositions(char[] wordToFind, char crossCharacter, List<Direction> directionsToSearch)
+    private List<Point> GetWordPositions(char[] wordToFind, char crossCharacter, List<Direction> directionsToSearch)
     {
         _verticalBoundary = _grid.Length;
 
-        List<Position> crossCharacterPositions = [];
+        List<Point> crossCharacterPositions = [];
         for (int y = 0; y < _verticalBoundary; y++)
         {
             _horizontalBoundary = _grid[0].Length;
@@ -69,8 +71,8 @@ public class Board
                 if (_grid[y][x] != wordToFind[0])
                     continue;
 
-                List<Position> crossCharacterLinePositions =
-                    SearchDirections(new Position(y, x), wordToFind, crossCharacter, directionsToSearch);
+                List<Point> crossCharacterLinePositions =
+                    SearchDirections(new Point(y, x), wordToFind, crossCharacter, directionsToSearch);
 
                 crossCharacterPositions.AddRange(crossCharacterLinePositions);
             }
@@ -79,14 +81,14 @@ public class Board
         return crossCharacterPositions;
     }
 
-    private List<Position> SearchDirections(
-        Position position, char[] wordToFind, char crossCharacter, List<Direction> directionsToSearch)
+    private List<Point> SearchDirections(
+        Point point, char[] wordToFind, char crossCharacter, List<Direction> directionsToSearch)
     {
-        List<Position> crossCharacterPositions = [];
+        List<Point> crossCharacterPositions = [];
 
         foreach (Direction direction in directionsToSearch)
         {
-            Position? foundPosition = SearchDirection(position, direction, wordToFind, crossCharacter);
+            Point? foundPosition = SearchDirection(point, direction, wordToFind, crossCharacter);
 
             if (foundPosition is not null)
                 crossCharacterPositions.Add(foundPosition.Value);
@@ -95,36 +97,36 @@ public class Board
         return crossCharacterPositions;
     }
 
-    private Position? SearchDirection(Position position, Direction direction, char[] wordToFind, char crossCharacter)
+    private Point? SearchDirection(Point point, Direction direction, char[] wordToFind, char crossCharacter)
     {
-        Position directionPath = _directionMapping[direction];
-        Position newPosition = position;
-        Position? characterPosition = null;
+        Point directionPath = _directionMapping[direction];
+        Point newPoint = point;
+        Point? characterPosition = null;
 
         foreach (char currentCharacterToFind in wordToFind)
         {
-            if (IsOutOfBound(newPosition))
+            if (IsOutOfBound(newPoint))
                 return null;
 
-            char gridCharacter = _grid[newPosition.Y][newPosition.X];
+            char gridCharacter = _grid[newPoint.Y][newPoint.X];
 
             if (gridCharacter != currentCharacterToFind)
                 return null;
 
             if (gridCharacter == crossCharacter)
-                characterPosition = newPosition;
+                characterPosition = newPoint;
 
-            newPosition += directionPath;
+            newPoint += directionPath;
         }
 
         return characterPosition;
     }
 
-    private bool IsOutOfBound(Position newPosition)
+    private bool IsOutOfBound(Point newPoint)
     {
-        return newPosition.X >= _horizontalBoundary ||
-               newPosition.Y >= _verticalBoundary ||
-               newPosition.X < 0 ||
-               newPosition.Y < 0;
+        return newPoint.X >= _horizontalBoundary ||
+               newPoint.Y >= _verticalBoundary ||
+               newPoint.X < 0 ||
+               newPoint.Y < 0;
     }
 }

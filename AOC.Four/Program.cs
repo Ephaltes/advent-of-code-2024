@@ -1,5 +1,6 @@
 ﻿using System;
-using System.IO;
+
+using AOC.Common;
 
 namespace AOC.Four;
 
@@ -7,7 +8,8 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        char[][] grid = GetGrid();
+        Utility utility = new();
+        char[][] grid = utility.GetGrid("input");
         SolvePartOne(grid);
         SolvePartTwo(grid);
     }
@@ -19,24 +21,12 @@ internal class Program
 
         Console.WriteLine($"Solution for part one: {occurrences}");
     }
-    
+
     private static void SolvePartTwo(char[][] grid)
     {
         Board board = new(grid);
-        int occurrences = board.GetCrossedWordCountInBoard("MAS".ToCharArray(),'A');
+        int occurrences = board.GetCrossedWordCountInBoard("MAS".ToCharArray(), 'A');
 
         Console.WriteLine($"Solution for part one: {occurrences}");
-    }
-
-    private static char[][] GetGrid()
-    {
-        string[] lines = File.ReadAllLines("input");
-
-        char[][] grid = new char[lines.Length][];
-
-        for (int i = 0; i < lines.Length; i++)
-            grid[i] = lines[i].ToCharArray();
-
-        return grid;
     }
 }

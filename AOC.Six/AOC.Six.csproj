@@ -5,16 +5,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\AOC.Common\AOC.Common.csproj"/>
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Update="testinput">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<None Update="input">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\AOC.Common\AOC.Common.csproj"/>
 	</ItemGroup>
 
 </Project>
