@@ -1,4 +1,4 @@
-﻿namespace AOC.Four;
+﻿namespace AOC.Day04;
 
 public enum Direction
 {

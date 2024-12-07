@@ -1,4 +1,4 @@
-﻿namespace AOC.Six;
+﻿namespace AOC.Day06;
 
 public enum MovementState
 {

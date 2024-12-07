@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using AOC.Common;
 
-namespace AOC.Six;
+namespace AOC.Day06;
 
 public class GridNavigator
 {

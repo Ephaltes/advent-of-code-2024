@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace AOC.Five;
+namespace AOC.Day05;
 
 internal class Program
 {

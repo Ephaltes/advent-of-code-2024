@@ -4,7 +4,7 @@ using System.Linq;
 
 using AOC.Common;
 
-namespace AOC.Four;
+namespace AOC.Day04;
 
 public class Board
 {

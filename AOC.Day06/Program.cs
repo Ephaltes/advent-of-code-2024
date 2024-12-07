@@ -2,7 +2,7 @@
 
 using AOC.Common;
 
-namespace AOC.Six;
+namespace AOC.Day06;
 
 internal class Program
 {

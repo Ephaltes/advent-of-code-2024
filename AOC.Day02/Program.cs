@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace AOC.Two;
+namespace AOC.Day02;
 
 internal class Program
 {

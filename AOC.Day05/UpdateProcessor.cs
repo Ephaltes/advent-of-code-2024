@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace AOC.Five;
+namespace AOC.Day05;
 
 public class UpdateProcessor
 {

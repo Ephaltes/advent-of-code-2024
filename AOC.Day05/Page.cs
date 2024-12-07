@@ -1,4 +1,4 @@
-﻿namespace AOC.Five;
+﻿namespace AOC.Day05;
 
 public class Page
 {
