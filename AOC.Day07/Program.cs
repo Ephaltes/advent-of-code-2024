@@ -28,8 +28,8 @@ internal class Program
 
     private static void SolvePartTwo(Calibrator calibrator)
     {
-        //List<CalibrationEquation> validEquations = calibrator.GetValidEquations([Operator.Addition, Operator.Multiplication, Operator.Concat]);
-        List<CalibrationEquation> validEquations = calibrator.GetValidEquationsOptimizedWithFixedOperators(true);
+        List<CalibrationEquation> validEquations = calibrator.GetValidEquations([Operator.Addition, Operator.Multiplication, Operator.Concat]);
+        //List<CalibrationEquation> validEquations = calibrator.GetValidEquationsOptimizedWithFixedOperators(true);
 
         long sum = validEquations.Select(equation => equation.Result).Sum();
 

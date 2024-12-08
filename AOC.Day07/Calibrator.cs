@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 using CSharpItertools;
 
@@ -23,20 +22,22 @@ public class Calibrator
     {
         ConcurrentBag<CalibrationEquation> validEquations = [];
 
-        Parallel.ForEach(_calibrationEquations, equation =>
-                                                {
-                                                    IEnumerable<Operator[]> possibleCombinations = _itertools.Product(operators, equation.Values.Count - 1);
+        foreach (CalibrationEquation equation in _calibrationEquations)
+        {
+            //IEnumerable<Operator[]> possibleCombinations = _itertools.Product(operators, equation.Values.Count - 1);
 
-                                                    if (possibleCombinations.Any(combination => IsValidCombination(equation, combination)))
-                                                        validEquations.Add(equation);
-                                                });
+            IEnumerable<Operator[]> possibleCombinations = GetOperatorCombinations(operators, equation.Values.Count - 1);
+
+            if (possibleCombinations.Any(combination => IsValidCombination(equation, combination)))
+                validEquations.Add(equation);
+        }
 
         return validEquations.ToList();
     }
 
     /// <summary>
     /// Optimized Solution by https://github.com/sundman/AdventOfCode-24/blob/main/ConsoleApp/Day7.cs
-    /// 200ms vs 15s
+    /// 200ms vs 15s using itertools vs 5s 
     /// </summary>
     /// <param name="allowConcat"></param>
     /// <returns></returns>
@@ -54,45 +55,6 @@ public class Calibrator
         }
 
         return validEquations;
-    }
-
-    /// <summary>
-    /// This only works because operators will always be evaluated left ro right, not according to precedence rules
-    /// and numbers can not be rearranged
-    /// </summary>
-    /// <param name="currentResult"></param>
-    /// <param name="reversedValues"></param>
-    /// <param name="index"></param>
-    /// <param name="allowConcat"></param>
-    /// <returns></returns>
-    private static bool IsValidEquationOptimized(
-        long currentResult,
-        List<long> reversedValues,
-        int index,
-        bool allowConcat)
-    {
-        if (index == reversedValues.Count - 1)
-            return currentResult == reversedValues[index];
-
-        long currentValue = reversedValues[index];
-
-        if (currentResult > currentValue &&
-            IsValidEquationOptimized(currentResult - currentValue, reversedValues, index + 1, allowConcat))
-            return true;
-
-        if (currentResult % currentValue == 0 &&
-            IsValidEquationOptimized(currentResult / currentValue, reversedValues, index + 1, allowConcat))
-            return true;
-
-        if (!allowConcat)
-            return false;
-
-        //Check if the remainder is the value we want to concat
-        //e.g. currentResult = 12345 and currentValue is 45 --> divideBy = 100 --> remainder of modulo will be 45
-        long divideBy = (long)Math.Pow(10, Math.Floor(Math.Log10(currentValue)) + 1);
-
-        return currentResult % divideBy == currentValue &&
-               IsValidEquationOptimized(currentResult / divideBy, reversedValues, index + 1, allowConcat);
     }
 
     private static bool IsValidCombination(CalibrationEquation equation, Operator[] combination)
@@ -136,5 +98,86 @@ public class Calibrator
     private static long Concat(long number1, long number2)
     {
         return long.Parse($"{number1}{number2}");
+    }
+
+    /// <summary>
+    /// This only works because operators will always be evaluated left ro right, not according to precedence rules
+    /// and numbers can not be rearranged
+    /// </summary>
+    /// <param name="currentResult"></param>
+    /// <param name="reversedValues"></param>
+    /// <param name="index"></param>
+    /// <param name="allowConcat"></param>
+    /// <returns></returns>
+    private static bool IsValidEquationOptimized(
+        long currentResult,
+        List<long> reversedValues,
+        int index,
+        bool allowConcat)
+    {
+        if (index == reversedValues.Count - 1)
+            return currentResult == reversedValues[index];
+
+        long currentValue = reversedValues[index];
+
+        if (currentResult > currentValue &&
+            IsValidEquationOptimized(currentResult - currentValue, reversedValues, index + 1, allowConcat))
+            return true;
+
+        if (currentResult % currentValue == 0 &&
+            IsValidEquationOptimized(currentResult / currentValue, reversedValues, index + 1, allowConcat))
+            return true;
+
+        if (!allowConcat)
+            return false;
+
+        //Check if the remainder is the value we want to concat
+        //e.g. currentResult = 12345 and currentValue is 45 --> divideBy = 100 --> remainder of modulo will be 45
+        long divideBy = (long)Math.Pow(10, Math.Floor(Math.Log10(currentValue)) + 1);
+
+        return currentResult % divideBy == currentValue &&
+               IsValidEquationOptimized(currentResult / divideBy, reversedValues, index + 1, allowConcat);
+    }
+
+    private static IEnumerable<Operator[]> GetOperatorCombinations(List<Operator> operators, int repeat)
+    {
+        // Initialize the indices array to track the current combination
+        int[] indices = new int[repeat];
+
+        while (true)
+        {
+            // Generate the current combination based on the indices
+            yield return BuildCombination(operators, indices);
+
+            // Increment the indices to prepare for the next combination
+            if (!IncrementIndices(indices, operators.Count))
+                break; // Exit when all combinations are generated
+        }
+    }
+
+    private static Operator[] BuildCombination(List<Operator> operators, int[] indices)
+    {
+        // Map the indices to their corresponding operators
+        Operator[] combination = new Operator[indices.Length];
+        for (int i = 0; i < indices.Length; i++)
+            combination[i] = operators[indices[i]];
+
+        return combination;
+    }
+
+    private static bool IncrementIndices(int[] indices, int operatorCount)
+    {
+        // Increment indices from right to left (like a multi-digit counter)
+        for (int position = indices.Length - 1; position >= 0; position--)
+        {
+            indices[position]++;
+
+            if (indices[position] < operatorCount)
+                return true; // Successfully incremented within bounds
+
+            indices[position] = 0; // Reset the current index and continue
+        }
+
+        return false; // All combinations have been exhausted
     }
 }
