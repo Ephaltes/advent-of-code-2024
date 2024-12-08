@@ -17,4 +17,8 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\AOC.Common\AOC.Common.csproj"/>
+	</ItemGroup>
+
 </Project>

@@ -8,8 +8,7 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        Utility utility = new();
-        char[][] grid = utility.GetGrid("input");
+        char[][] grid = Utility.GetGrid("input");
         SolvePartOne(grid);
         SolvePartTwo(grid);
     }

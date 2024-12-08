@@ -9,9 +9,7 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        Utility utility = new();
-
-        char[][] grid = utility.GetGrid("input");
+        char[][] grid = Utility.GetGrid("input");
         GridNavigator gridNavigator = new(grid);
 
         HashSet<Point> guardPath = SolvePartOne(gridNavigator);

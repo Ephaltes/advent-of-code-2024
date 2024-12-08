@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
+using AOC.Common;
+
 using CSharpItertools;
 
 namespace AOC.Day07;
@@ -26,7 +28,7 @@ public class Calibrator
         {
             //IEnumerable<Operator[]> possibleCombinations = _itertools.Product(operators, equation.Values.Count - 1);
 
-            IEnumerable<Operator[]> possibleCombinations = GetOperatorCombinations(operators, equation.Values.Count - 1);
+            IEnumerable<Operator[]> possibleCombinations = Utility.GetAllCombinations(operators, equation.Values.Count - 1);
 
             if (possibleCombinations.Any(combination => IsValidCombination(equation, combination)))
                 validEquations.Add(equation);
@@ -37,7 +39,7 @@ public class Calibrator
 
     /// <summary>
     /// Optimized Solution by https://github.com/sundman/AdventOfCode-24/blob/main/ConsoleApp/Day7.cs
-    /// 200ms vs 15s using itertools vs 5s 
+    /// 200ms vs 15s using itertools vs 5s
     /// </summary>
     /// <param name="allowConcat"></param>
     /// <returns></returns>
@@ -137,47 +139,5 @@ public class Calibrator
 
         return currentResult % divideBy == currentValue &&
                IsValidEquationOptimized(currentResult / divideBy, reversedValues, index + 1, allowConcat);
-    }
-
-    private static IEnumerable<Operator[]> GetOperatorCombinations(List<Operator> operators, int repeat)
-    {
-        // Initialize the indices array to track the current combination
-        int[] indices = new int[repeat];
-
-        while (true)
-        {
-            // Generate the current combination based on the indices
-            yield return BuildCombination(operators, indices);
-
-            // Increment the indices to prepare for the next combination
-            if (!IncrementIndices(indices, operators.Count))
-                break; // Exit when all combinations are generated
-        }
-    }
-
-    private static Operator[] BuildCombination(List<Operator> operators, int[] indices)
-    {
-        // Map the indices to their corresponding operators
-        Operator[] combination = new Operator[indices.Length];
-        for (int i = 0; i < indices.Length; i++)
-            combination[i] = operators[indices[i]];
-
-        return combination;
-    }
-
-    private static bool IncrementIndices(int[] indices, int operatorCount)
-    {
-        // Increment indices from right to left (like a multi-digit counter)
-        for (int position = indices.Length - 1; position >= 0; position--)
-        {
-            indices[position]++;
-
-            if (indices[position] < operatorCount)
-                return true; // Successfully incremented within bounds
-
-            indices[position] = 0; // Reset the current index and continue
-        }
-
-        return false; // All combinations have been exhausted
     }
 }
