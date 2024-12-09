@@ -4,16 +4,32 @@ namespace AOC.Common;
 
 public struct Point : IEquatable<Point>
 {
+    private const int InverseElement = -1;
+
     public Point(int y, int x)
     {
         Y = y;
         X = x;
     }
 
+    public Point(Point otherPoint)
+    {
+        Y = otherPoint.Y;
+        X = otherPoint.X;
+    }
+
     public static Point operator +(Point left, Point right)
     {
         left.X += right.X;
         left.Y += right.Y;
+
+        return left;
+    }
+
+    public static Point operator -(Point left, Point right)
+    {
+        left.X -= right.X;
+        left.Y -= right.Y;
 
         return left;
     }
@@ -38,6 +54,11 @@ public struct Point : IEquatable<Point>
     {
         get;
         private set;
+    }
+
+    public Point Invert()
+    {
+        return new Point(Y * InverseElement, X * InverseElement);
     }
 
     public bool Equals(Point other)
