@@ -2,6 +2,7 @@
 	<PropertyGroup Label="Globals">
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
+		<ImplicitUsings>false</ImplicitUsings>
 
 		<PublishAot>false</PublishAot>
 

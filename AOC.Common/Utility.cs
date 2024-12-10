@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace AOC.Common;
 
-public class Utility
+public static class Utility
 {
     public static char[][] GetGrid(string inputFile)
     {
@@ -39,6 +39,21 @@ public class Utility
             if (!IncrementIndices(indices, symbols.Count()))
                 break; // Exit when all combinations are generated
         }
+    }
+
+    public static IList<T> Swap<T>(this IList<T> list, int indexA, int indexB)
+    {
+        (list[indexA], list[indexB]) = (list[indexB], list[indexA]);
+
+        return list;
+    }
+
+    public static IList<T> AddCount<T>(this IList<T> list, T value, int count)
+    {
+        for (int i = 0; i < count; i++)
+            list.Add(value);
+
+        return list;
     }
 
     private static T[] BuildCombination<T>(List<T> operators, int[] indices)
